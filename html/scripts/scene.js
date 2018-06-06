@@ -25,7 +25,6 @@
 
 		// camera
 		camera = new THREE.PerspectiveCamera(90, width / height, 1, 20000);
-		//      camera.position.set(50,-50,500);
 		camera.position.set(50,1800,880);
 		camera.rotation.x = -1.2;
 
@@ -42,6 +41,35 @@
 		stats = new Stats();
 		stats.dom.id = "gl-stats";
 		container.appendChild( stats.dom );
+
+		loadCharacter();
+
+	}
+
+	function loadCharacter(){
+    	
+    	var loader = new THREE.MMDLoader();
+
+    	//var file = "https://webmr.ml/models/kizunaai_mmd/kizunaai.pmx";
+
+    	var file = "./models/kizunaai_mmd/kizunaai.pmx";
+    	
+    	var onProgress = function ( xhr ) {
+    		if ( xhr.lengthComputable ) {
+    			var percentComplete = xhr.loaded / xhr.total * 100;
+    			console.log( Math.round(percentComplete, 2) + '% downloaded' );
+    		}
+    	};
+
+    	var onError = function ( xhr ) {
+    	};
+
+    	loader.loadModel( file , function(mesh){
+    		var scale = 30.0;
+    		mesh.position.set(0,-10,-200);
+    		mesh.scale.set(scale, scale, scale);
+          	scene.add(mesh);
+        }, onProgress, onError );
 
 	}
 
@@ -66,13 +94,15 @@
     	arr = arr[0];
     	var width = arr[0].length, height = arr.length, i = 0;
 
-    	const scale = 3.0;
+    	const scale = 10.0;
+    	const depthScale = 200 * scale;
 
     	for(var y=0; y<height; y++){
     		
     		for(var x=0; x<width; x++){
 
-    			depth = arr[y][x] * 400.0 - 200;
+
+    			depth = arr[y][x] * depthScale - depthScale/ 2.0;
 
     			points.geometry.vertices[i].set( (x - width/2) * scale, - (y - height/2) * scale, - depth );
 
@@ -88,7 +118,6 @@
 
     	points.geometry.verticesNeedUpdate = true;
 
-    	console.log("update");
     }
 
     function createPointCloud( arr ){
@@ -110,7 +139,7 @@
         
 		var material =  new THREE.PointsMaterial({
 		    vertexColors: true,
-		    size: 1.0,
+		    size: 8.0,
 		    sizeAttenuation: false,
 		  });
 
